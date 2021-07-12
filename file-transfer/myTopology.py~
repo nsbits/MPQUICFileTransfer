@@ -1,0 +1,56 @@
+from mininet.topo import Topo
+from mininet.net import Mininet
+from mininet.node import Controller
+from mininet.cli import CLI
+
+
+def multipathTopo():
+    net = Mininet(build = False)
+    
+    c0 = net.addController("controller")
+
+    server = net.addHost('server')
+    client = net.addHost('client')
+    router = net.addHost('router')
+    router1 = net.addHost('router1')
+
+    leftSwitch = net.addSwitch('s1')
+    rightSwitch = net.addSwitch('s2')
+    serverSwitch = net.addSwitch('s3')
+    serverSwitch1 = net.addSwitch('s4')
+
+    net.addLink(client, leftSwitch)
+    net.addLink(client, rightSwitch)
+
+    net.addLink(router, leftSwitch)
+    net.addLink(router, rightSwitch)
+    net.addLink(router, serverSwitch) 
+	
+    net.addLink(router1, leftSwitch)
+    net.addLink(router1, rightSwitch)
+    net.addLink(router1, serverSwitch) 
+
+    net.addLink(serverSwitch, server)
+    net.addLink(serverSwitch1, server)
+
+    net.build()
+
+    server.cmd('./mininet-topology/server-config.sh')
+    client.cmd('./mininet-topology/client-config.sh')
+    router.cmd('./mininet-topology/router-config.sh')
+    router1.cmd('./mininet-topology/router1-config.sh')
+
+    controller = net.controllers[0]
+    controller.start()
+    
+    leftSwitch.start([controller])
+    rightSwitch.start([controller])
+    serverSwitch.start([controller])
+    serverSwitch2.start([controller])
+
+    return net
+
+if __name__ == "__main__":
+    net = multipathTopo()
+    CLI(net)
+
